@@ -1,0 +1,6 @@
+[project]
+name = "molecraft"
+version = "0.1.0"
+description = "Molecule building puzzle game"
+requires-python = ">=3.10"
+
