@@ -2,10 +2,10 @@ import random
 
 from textual.app import App
 
-from src.screens.menu import MenuScreen
-from src.screens.game import GameScreen
-from src.puzzles import Difficulty, get_puzzles, Puzzle
-from src.widgets.puzzle_grid import PuzzleGrid
+from screens.menu import MenuScreen
+from screens.game import GameScreen
+from puzzles import Difficulty, get_puzzles, Puzzle
+from widgets.puzzle_grid import PuzzleGrid
 
 
 class MoleCraftApp(App):
