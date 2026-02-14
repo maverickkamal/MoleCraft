@@ -53,19 +53,20 @@ class PuzzleGrid(Static):
         self.selected_atom_id: Optional[str] = None
         self.current_element = "H"
         self.locked_positions: set = set()
+        self.hint_positions: Dict[tuple, str] = {}
+        self.show_hints = True
         self._setup_puzzle()
 
     def _setup_puzzle(self) -> None:
+        self.hint_positions.clear()
         for x, y in self.puzzle.carbons:
             atom = Atom(element="C", x=x, y=y)
             self.atoms[atom.id] = atom
             self.locked_positions.add((x, y))
         for elem, x, y in self.puzzle.target_atoms:
-            if elem not in ["C"]:
+            if elem == "C":
                 continue
-            atom = Atom(element=elem, x=x, y=y)
-            self.atoms[atom.id] = atom
-            self.locked_positions.add((x, y))
+            self.hint_positions[(x, y)] = elem
 
     def on_mount(self) -> None:
         if self.puzzle.carbons:
@@ -136,17 +137,14 @@ class PuzzleGrid(Static):
             return
         if self.selected_atom_id is None:
             self.selected_atom_id = atom.id
-            self.app.notify(f"Selected {atom.element} at ({atom.x},{atom.y})")
             self.refresh()
             return
         if self.selected_atom_id == atom.id:
             self.selected_atom_id = None
-            self.app.notify("Deselected")
             self.refresh()
             return
         selected = self.atoms.get(self.selected_atom_id)
         if selected:
-            self.app.notify(f"Bonding {selected.element}({selected.x},{selected.y}) to {atom.element}({atom.x},{atom.y})")
             self.create_bond(selected, atom)
         self.selected_atom_id = None
         self.refresh()
@@ -209,6 +207,7 @@ class PuzzleGrid(Static):
                 is_cursor = x == self.cursor_x and y == self.cursor_y
                 is_selected = self.selected_atom_id and atom and atom.id == self.selected_atom_id
                 is_locked = (x, y) in self.locked_positions
+                hint_elem = self.hint_positions.get((x, y))
                 if atom:
                     ch = atom.element[0]
                     color = self.ELEMENT_COLORS.get(atom.element, "white")
@@ -222,6 +221,12 @@ class PuzzleGrid(Static):
                         text.append(ch, style=color)
                 elif (x, y) in bond_cells:
                     text.append(bond_cells[(x, y)], style="cyan")
+                elif self.show_hints and hint_elem:
+                    ch = hint_elem[0].lower()
+                    if is_cursor:
+                        text.append(ch, style="dim bright_magenta reverse")
+                    else:
+                        text.append(ch, style="dim bright_black")
                 elif is_cursor:
                     text.append("◊", style="bold bright_magenta")
                 else:

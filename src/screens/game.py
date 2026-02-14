@@ -92,7 +92,7 @@ class GameScreen(Screen):
 
     def compose(self) -> ComposeResult:
         with Horizontal(id="header-bar"):
-            yield Static(f"[bold]{self.puzzle.name}[/] ({self.puzzle.formula})", id="puzzle-name")
+            yield Static(f"[bold]{self.puzzle.name}[/] ({self.puzzle.formula}) | Score: {self.app.score}", id="puzzle-name")
             yield Static(f"⏱ {self.time_left:02d}s", id="timer")
         with Container(id="grid-container"):
             yield PuzzleGrid(self.puzzle)
