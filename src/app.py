@@ -7,6 +7,7 @@ from screens.game import GameScreen
 from screens.game_over import GameOverModal
 from puzzles import Difficulty, get_puzzles, Puzzle
 from widgets.puzzle_grid import PuzzleGrid
+from save_manager import load_save, write_save
 
 
 class MoleCraftApp(App):
@@ -22,6 +23,7 @@ class MoleCraftApp(App):
 
     def __init__(self) -> None:
         super().__init__()
+        self.save_data = load_save()
         self.score = 0
         self.current_puzzle: Puzzle | None = None
         self.current_difficulty: Difficulty | None = None
@@ -36,7 +38,8 @@ class MoleCraftApp(App):
         self.push_screen(GameScreen(self.current_puzzle))
 
     def show_game_over(self, reason: str) -> None:
-        self.push_screen(GameOverModal(self.score, reason))
+        self._save_high_score()
+        self.push_screen(GameOverModal(self.score, self.save_data["high_score"], reason))
 
     def restart_game(self) -> None:
         self.score = 0
@@ -48,6 +51,24 @@ class MoleCraftApp(App):
         self.score = 0
         while len(self.screen_stack) > 1:
             self.pop_screen()
+
+    def _record_solve(self, puzzle: Puzzle, time_remaining: int) -> None:
+        diff_key = self.current_difficulty.value
+        completed = self.save_data["completed_puzzles"]
+        if puzzle.name not in completed[diff_key]:
+            completed[diff_key].append(puzzle.name)
+        self.save_data["total_solved"] = self.save_data.get("total_solved", 0) + 1
+        solve_time = puzzle.time_limit - time_remaining
+        fastest = self.save_data.get("fastest_solve")
+        if fastest is None or solve_time < fastest:
+            self.save_data["fastest_solve"] = solve_time
+        self._save_high_score()
+
+    def _save_high_score(self) -> None:
+        if self.score > self.save_data["high_score"]:
+            self.save_data["high_score"] = self.score
+        self.save_data["last_difficulty"] = self.current_difficulty.value if self.current_difficulty else "easy"
+        write_save(self.save_data)
 
     def check_solution(self, grid: PuzzleGrid) -> None:
         player_atoms = set()
@@ -80,6 +101,7 @@ class MoleCraftApp(App):
             time_bonus = self.screen.time_left * 10
             self.score += 100 + time_bonus
             self.notify(f"Correct! +{100 + time_bonus} points", severity="information")
+            self._record_solve(self.current_puzzle, self.screen.time_left)
             self.pop_screen()
             self.start_puzzle(self.current_difficulty)
         else:

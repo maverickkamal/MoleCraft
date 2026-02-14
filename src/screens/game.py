@@ -7,6 +7,7 @@ from textual.timer import Timer
 
 from widgets.puzzle_grid import PuzzleGrid
 from puzzles import Puzzle
+from screens.pause import PauseModal
 
 
 class GameScreen(Screen):
@@ -81,6 +82,7 @@ class GameScreen(Screen):
         Binding("backspace", "delete", "Del", show=False),
         Binding("enter", "submit", "Submit"),
         Binding("r", "reset", "Reset"),
+        Binding("p", "pause", "Pause"),
         Binding("escape", "back", "Back"),
     ]
 
@@ -105,7 +107,7 @@ class GameScreen(Screen):
                 yield Static("  │  ", id="sep")
                 yield Button("Submit", id="submit-btn", classes="action-btn", variant="success")
                 yield Button("Reset", id="reset-btn", classes="action-btn", variant="warning")
-            yield Static("[dim]Arrow keys: move | H/O/N/L: place atom | Space: bond | Enter: submit[/]", id="bond-info")
+            yield Static("[dim]Arrow keys: move | H/O/N/L: place atom | Space: bond | Enter: submit | P: pause[/]", id="bond-info")
         yield Footer()
 
     def on_mount(self) -> None:
@@ -182,6 +184,16 @@ class GameScreen(Screen):
         self.time_left = self.puzzle.time_limit
         self.query_one("#timer", Static).update(f"⏱ {self.time_left:02d}s")
         self.notify("Puzzle reset")
+
+    def action_pause(self) -> None:
+        if self.timer:
+            self.timer.stop()
+        self.app.push_screen(PauseModal(), callback=self._on_resume)
+
+    def _on_resume(self, result=None) -> None:
+        if self.is_current:
+            self.timer = self.set_interval(1, self.tick)
+            self.grid.focus()
 
     def action_back(self) -> None:
         if self.timer:

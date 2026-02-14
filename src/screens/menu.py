@@ -59,6 +59,11 @@ class MenuScreen(Screen):
         margin-top: 2;
         color: $text-muted;
     }
+    #stats {
+        text-align: center;
+        margin-top: 1;
+        color: $text;
+    }
     """
 
     BINDINGS = [
@@ -69,8 +74,18 @@ class MenuScreen(Screen):
     ]
 
     def compose(self) -> ComposeResult:
+        save = self.app.save_data
+        high = save.get("high_score", 0)
+        solved = save.get("total_solved", 0)
+        fastest = save.get("fastest_solve")
+        fastest_str = f"{fastest}s" if fastest is not None else "-"
+
         with Container(id="menu-container"):
             yield Static(TITLE_ART, id="title")
+            yield Static(
+                f"[bold]High Score: {high}[/]  |  Molecules Solved: {solved}  |  Fastest: {fastest_str}",
+                id="stats",
+            )
             with Horizontal(id="button-row"):
                 yield Button("1. Easy", id="easy-btn", classes="difficulty-btn")
                 yield Button("2. Medium", id="medium-btn", classes="difficulty-btn")
