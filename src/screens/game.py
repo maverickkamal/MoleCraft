@@ -226,7 +226,7 @@ class GameScreen(Screen):
     def action_back(self) -> None:
         if self.timer:
             self.timer.stop()
-        self.app.pop_screen()
+        self.app.return_to_menu()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn_id = event.button.id

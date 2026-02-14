@@ -11,15 +11,13 @@ from save_manager import load_save, write_save
 
 
 class MoleCraftApp(App):
+    TITLE = "MoleCraft"
+
     CSS = """
     Screen {
         background: $surface;
     }
     """
-
-    SCREENS = {
-        "menu": MenuScreen,
-    }
 
     STARTING_LIVES = 3
 
@@ -34,7 +32,7 @@ class MoleCraftApp(App):
         self.session_solved: list[str] = []
 
     def on_mount(self) -> None:
-        self.push_screen("menu")
+        self.push_screen(MenuScreen())
 
     def _pick_puzzle(self, difficulty: Difficulty) -> Puzzle:
         puzzles = get_puzzles(difficulty)
@@ -81,6 +79,7 @@ class MoleCraftApp(App):
         self.session_solved.clear()
         while len(self.screen_stack) > 1:
             self.pop_screen()
+        self.push_screen(MenuScreen())
 
     def _record_solve(self, puzzle: Puzzle, time_remaining: int) -> None:
         diff_key = self.current_difficulty.value

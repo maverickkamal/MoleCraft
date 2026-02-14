@@ -1,11 +1,23 @@
 [project]
 name = "molecraft"
-version = "0.1.0"
-description = "TUI Organic Chemistry Molecule Editor"
+version = "1.0.0"
+description = "Terminal-based chemistry puzzle game. Build molecules, beat the clock."
 requires-python = ">=3.10"
 dependencies = [
     "textual>=0.47.0",
 ]
+readme = "README.md"
+license = {text = "MIT"}
+keywords = ["chemistry", "puzzle", "tui", "terminal", "game"]
+classifiers = [
+    "Environment :: Console",
+    "Topic :: Games/Entertainment :: Puzzle Games",
+    "Topic :: Education",
+    "Programming Language :: Python :: 3",
+]
+
+[project.urls]
+Repository = "https://github.com/maverickkamal/MoleCraft"
 
 [project.scripts]
 molecraft = "src.app:main"
