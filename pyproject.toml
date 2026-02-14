@@ -1,6 +1,15 @@
 [project]
-name = "molecraft"
+name = "termchem"
 version = "0.1.0"
-description = "Molecule building puzzle game"
+description = "TUI Organic Chemistry Molecule Editor"
 requires-python = ">=3.10"
+dependencies = [
+    "textual>=0.47.0",
+]
 
+[project.scripts]
+termchem = "termchem.app:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
