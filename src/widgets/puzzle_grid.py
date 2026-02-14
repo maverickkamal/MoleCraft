@@ -1,4 +1,5 @@
 from typing import Dict, Optional
+from copy import deepcopy
 
 from textual.widgets import Static
 from textual.reactive import reactive
@@ -44,6 +45,8 @@ class PuzzleGrid(Static):
     class BondCreated(Message):
         pass
 
+    MAX_UNDO = 50
+
     def __init__(self, puzzle: Puzzle) -> None:
         super().__init__()
         self.can_focus = True
@@ -55,6 +58,7 @@ class PuzzleGrid(Static):
         self.locked_positions: set = set()
         self.hint_positions: Dict[tuple, str] = {}
         self.show_hints = True
+        self._undo_stack: list = []
         self._setup_puzzle()
 
     def _setup_puzzle(self) -> None:
@@ -67,6 +71,19 @@ class PuzzleGrid(Static):
             if elem == "C":
                 continue
             self.hint_positions[(x, y)] = elem
+
+    def _push_undo(self) -> None:
+        snapshot = (deepcopy(self.atoms), deepcopy(self.bonds), self.selected_atom_id)
+        self._undo_stack.append(snapshot)
+        if len(self._undo_stack) > self.MAX_UNDO:
+            self._undo_stack.pop(0)
+
+    def undo(self) -> bool:
+        if not self._undo_stack:
+            return False
+        self.atoms, self.bonds, self.selected_atom_id = self._undo_stack.pop()
+        self.refresh()
+        return True
 
     def on_mount(self) -> None:
         if self.puzzle.carbons:
@@ -94,6 +111,7 @@ class PuzzleGrid(Static):
     def add_atom(self, element: str) -> None:
         if (self.cursor_x, self.cursor_y) in self.locked_positions:
             return
+        self._push_undo()
         existing = self.get_atom_at(self.cursor_x, self.cursor_y)
         if existing:
             if (existing.x, existing.y) in self.locked_positions:
@@ -110,11 +128,13 @@ class PuzzleGrid(Static):
         if (self.cursor_x, self.cursor_y) in self.locked_positions:
             return
         existing = self.get_atom_at(self.cursor_x, self.cursor_y)
-        if existing:
-            for bond_id in list(existing.bonds):
-                self.remove_bond(bond_id)
-            self.atoms.pop(existing.id)
-            self.refresh()
+        if not existing:
+            return
+        self._push_undo()
+        for bond_id in list(existing.bonds):
+            self.remove_bond(bond_id)
+        self.atoms.pop(existing.id)
+        self.refresh()
 
     def remove_bond(self, bond_id: str) -> None:
         if bond_id in self.bonds:
@@ -145,6 +165,7 @@ class PuzzleGrid(Static):
             return
         selected = self.atoms.get(self.selected_atom_id)
         if selected:
+            self._push_undo()
             self.create_bond(selected, atom)
         self.selected_atom_id = None
         self.refresh()

@@ -5,7 +5,7 @@ from textual.app import App
 from screens.menu import MenuScreen
 from screens.game import GameScreen
 from screens.game_over import GameOverModal
-from puzzles import Difficulty, get_puzzles, Puzzle
+from puzzles import Difficulty, get_puzzles, Puzzle, MOLECULE_FACTS
 from widgets.puzzle_grid import PuzzleGrid
 from save_manager import load_save, write_save
 
@@ -102,6 +102,23 @@ class MoleCraftApp(App):
         self.save_data["last_difficulty"] = self.current_difficulty.value if self.current_difficulty else "easy"
         write_save(self.save_data)
 
+    def _check_promotion(self) -> Difficulty:
+        diff_key = self.current_difficulty.value
+        completed = self.save_data["completed_puzzles"].get(diff_key, [])
+        all_puzzles = get_puzzles(self.current_difficulty)
+        if len(completed) >= len(all_puzzles):
+            next_map = {Difficulty.EASY: Difficulty.MEDIUM, Difficulty.MEDIUM: Difficulty.HARD}
+            if self.current_difficulty in next_map:
+                promoted = next_map[self.current_difficulty]
+                self.notify(
+                    f"All {diff_key} puzzles cleared! Moving to {promoted.value}",
+                    severity="information",
+                    timeout=5,
+                )
+                self.current_difficulty = promoted
+                return promoted
+        return self.current_difficulty
+
     def check_solution(self, grid: PuzzleGrid) -> None:
         player_atoms = set()
         for atom in grid.atoms.values():
@@ -140,9 +157,13 @@ class MoleCraftApp(App):
             if self.streak > 1:
                 parts.append(f"streak x{self.streak}")
             self.notify(f"Correct! {' | '.join(parts)}", severity="information")
+            fact = MOLECULE_FACTS.get(self.current_puzzle.name)
+            if fact:
+                self.notify(fact, severity="information", timeout=6)
             self._record_solve(self.current_puzzle, self.screen.time_left)
+            next_diff = self._check_promotion()
             self.pop_screen()
-            self.start_puzzle(self.current_difficulty)
+            self.start_puzzle(next_diff)
         else:
             missing_atoms = target_atoms - player_atoms
             extra_atoms = player_atoms - target_atoms

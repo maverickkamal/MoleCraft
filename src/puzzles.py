@@ -631,6 +631,40 @@ HARD_PUZZLES = [
 ]
 
 
+MOLECULE_FACTS = {
+    "Methane": "Methane is the main component of natural gas.",
+    "Ethane": "Ethane is the second-largest component of natural gas.",
+    "Propane": "Propane is commonly used as fuel for grills and heaters.",
+    "Water": "A single glass of water has more molecules than there are glasses of water in all the oceans.",
+    "Ammonia": "Ammonia is used in most commercial fertilizers.",
+    "Hydrogen Chloride": "Hydrogen chloride dissolved in water is hydrochloric acid.",
+    "Methanol": "Methanol is the simplest alcohol and is toxic to humans.",
+    "Hydrogen Peroxide": "Hydrogen peroxide is used by bombardier beetles as a defense mechanism.",
+    "Hydrogen": "Hydrogen is the most abundant element in the universe.",
+    "Chlorine": "Chlorine gas was used as a chemical weapon in World War I.",
+    "Ethene": "Ethene (ethylene) is used to ripen bananas artificially.",
+    "Ethyne": "Ethyne (acetylene) burns hot enough to cut through steel.",
+    "Formaldehyde": "Formaldehyde is used to preserve biological specimens.",
+    "Carbon Dioxide": "CO2 makes up only 0.04% of Earth's atmosphere but drives climate change.",
+    "Ethanol": "Ethanol is the alcohol in alcoholic beverages.",
+    "Acetic Acid": "Acetic acid is what gives vinegar its sour taste.",
+    "Propene": "Propene (propylene) is used to make polypropylene plastic.",
+    "Acetone": "Acetone is the main ingredient in nail polish remover.",
+    "Formic Acid": "Formic acid is what makes ant stings burn. Its name comes from 'formica' (Latin for ant).",
+    "Dimethyl Ether": "Dimethyl ether is being studied as a diesel fuel replacement.",
+    "Butane": "Butane is the fuel in disposable lighters.",
+    "Butadiene": "Butadiene is used to make synthetic rubber for tires.",
+    "Glycine": "Glycine is the simplest amino acid and a building block of proteins.",
+    "Urea": "Urea was the first organic compound synthesized from inorganic materials (1828).",
+    "Methyl Formate": "Methyl formate is used as a fumigant for dried fruits and cereals.",
+    "Chloroform": "Chloroform was one of the first anesthetics used in surgery.",
+    "Acetaldehyde": "Acetaldehyde is what causes hangovers -- your body produces it when breaking down alcohol.",
+    "Nitromethane": "Nitromethane is used as fuel in drag racing cars.",
+    "Propanol": "Propanol is used as a solvent in the pharmaceutical industry.",
+    "Lactic Acid": "Lactic acid builds up in your muscles during intense exercise.",
+}
+
+
 def get_puzzles(difficulty: Difficulty) -> list:
     if difficulty == Difficulty.EASY:
         return EASY_PUZZLES

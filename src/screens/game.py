@@ -90,6 +90,7 @@ class GameScreen(Screen):
         Binding("delete", "delete", "Del"),
         Binding("backspace", "delete", "Del", show=False),
         Binding("enter", "submit", "Submit"),
+        Binding("u", "undo", "Undo"),
         Binding("r", "reset", "Reset"),
         Binding("p", "pause", "Pause"),
         Binding("escape", "back", "Back"),
@@ -126,7 +127,7 @@ class GameScreen(Screen):
                 yield Static("  │  ", id="sep")
                 yield Button("Submit", id="submit-btn", classes="action-btn", variant="success")
                 yield Button("Reset", id="reset-btn", classes="action-btn", variant="warning")
-            yield Static("[dim]Arrow keys: move | H/O/N/L: place atom | Space: bond | Enter: submit | P: pause[/]", id="bond-info")
+            yield Static("[dim]Arrows: move | H/O/N/L: atom | Space: bond | U: undo | Enter: submit | P: pause[/]", id="bond-info")
         yield Footer()
 
     def on_mount(self) -> None:
@@ -194,6 +195,12 @@ class GameScreen(Screen):
 
     def action_submit(self) -> None:
         self.app.check_solution(self.grid)
+
+    def action_undo(self) -> None:
+        if not self.grid.undo():
+            self.notify("Nothing to undo", severity="warning")
+        else:
+            self.update_status()
 
     def action_reset(self) -> None:
         self.grid.atoms.clear()

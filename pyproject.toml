@@ -1,5 +1,5 @@
 [project]
-name = "termchem"
+name = "molecraft"
 version = "0.1.0"
 description = "TUI Organic Chemistry Molecule Editor"
 requires-python = ">=3.10"
@@ -8,7 +8,7 @@ dependencies = [
 ]
 
 [project.scripts]
-termchem = "termchem.app:main"
+molecraft = "src.app:main"
 
 [build-system]
 requires = ["hatchling"]
