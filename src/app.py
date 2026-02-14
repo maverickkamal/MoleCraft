@@ -21,34 +21,64 @@ class MoleCraftApp(App):
         "menu": MenuScreen,
     }
 
+    STARTING_LIVES = 3
+
     def __init__(self) -> None:
         super().__init__()
         self.save_data = load_save()
         self.score = 0
+        self.lives = self.STARTING_LIVES
+        self.streak = 0
         self.current_puzzle: Puzzle | None = None
         self.current_difficulty: Difficulty | None = None
+        self.session_solved: list[str] = []
 
     def on_mount(self) -> None:
         self.push_screen("menu")
 
+    def _pick_puzzle(self, difficulty: Difficulty) -> Puzzle:
+        puzzles = get_puzzles(difficulty)
+        diff_key = difficulty.value
+        completed = self.save_data["completed_puzzles"].get(diff_key, [])
+        unsolved = [p for p in puzzles if p.name not in completed and p.name not in self.session_solved]
+        if not unsolved:
+            unsolved = [p for p in puzzles if p.name not in self.session_solved]
+        if not unsolved:
+            self.session_solved.clear()
+            unsolved = list(puzzles)
+        return random.choice(unsolved)
+
     def start_puzzle(self, difficulty: Difficulty) -> None:
         self.current_difficulty = difficulty
-        puzzles = get_puzzles(difficulty)
-        self.current_puzzle = random.choice(puzzles)
+        self.current_puzzle = self._pick_puzzle(difficulty)
         self.push_screen(GameScreen(self.current_puzzle))
 
-    def show_game_over(self, reason: str) -> None:
-        self._save_high_score()
-        self.push_screen(GameOverModal(self.score, self.save_data["high_score"], reason))
+    def lose_life(self, reason: str = "Time's up!") -> None:
+        self.lives -= 1
+        self.streak = 0
+        if self.lives <= 0:
+            self._save_high_score()
+            self.push_screen(GameOverModal(self.score, self.save_data["high_score"], reason))
+        else:
+            self.notify(f"{reason} {self.lives} {'lives' if self.lives > 1 else 'life'} left", severity="warning")
+            self.pop_screen()
+            self.start_puzzle(self.current_difficulty)
 
     def restart_game(self) -> None:
         self.score = 0
+        self.lives = self.STARTING_LIVES
+        self.streak = 0
+        self.session_solved.clear()
         while len(self.screen_stack) > 1:
             self.pop_screen()
         self.start_puzzle(self.current_difficulty)
 
     def return_to_menu(self) -> None:
+        self._save_high_score()
         self.score = 0
+        self.lives = self.STARTING_LIVES
+        self.streak = 0
+        self.session_solved.clear()
         while len(self.screen_stack) > 1:
             self.pop_screen()
 
@@ -62,6 +92,8 @@ class MoleCraftApp(App):
         fastest = self.save_data.get("fastest_solve")
         if fastest is None or solve_time < fastest:
             self.save_data["fastest_solve"] = solve_time
+        if self.streak > self.save_data.get("best_streak", 0):
+            self.save_data["best_streak"] = self.streak
         self._save_high_score()
 
     def _save_high_score(self) -> None:
@@ -99,8 +131,15 @@ class MoleCraftApp(App):
 
         if atoms_correct and bonds_correct:
             time_bonus = self.screen.time_left * 10
-            self.score += 100 + time_bonus
-            self.notify(f"Correct! +{100 + time_bonus} points", severity="information")
+            self.streak += 1
+            streak_bonus = (self.streak - 1) * 25
+            gained = 100 + time_bonus + streak_bonus
+            self.score += gained
+            self.session_solved.append(self.current_puzzle.name)
+            parts = [f"+{gained} pts"]
+            if self.streak > 1:
+                parts.append(f"streak x{self.streak}")
+            self.notify(f"Correct! {' | '.join(parts)}", severity="information")
             self._record_solve(self.current_puzzle, self.screen.time_left)
             self.pop_screen()
             self.start_puzzle(self.current_difficulty)

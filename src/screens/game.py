@@ -29,6 +29,15 @@ class GameScreen(Screen):
         text-align: right;
         color: $warning;
     }
+    #lives {
+        width: auto;
+        margin-right: 2;
+    }
+    #streak-display {
+        width: auto;
+        margin-right: 2;
+        color: $accent;
+    }
     #grid-container {
         height: 1fr;
         padding: 1;
@@ -92,9 +101,19 @@ class GameScreen(Screen):
         self.time_left = puzzle.time_limit
         self.timer: Timer | None = None
 
+    def _lives_display(self) -> str:
+        return f"[bold red]{'♥ ' * self.app.lives}{'♡ ' * (self.app.STARTING_LIVES - self.app.lives)}[/]"
+
+    def _streak_display(self) -> str:
+        if self.app.streak > 0:
+            return f"[bold bright_yellow]x{self.app.streak}[/]"
+        return ""
+
     def compose(self) -> ComposeResult:
         with Horizontal(id="header-bar"):
             yield Static(f"[bold]{self.puzzle.name}[/] ({self.puzzle.formula}) | Score: {self.app.score}", id="puzzle-name")
+            yield Static(self._streak_display(), id="streak-display")
+            yield Static(self._lives_display(), id="lives")
             yield Static(f"⏱ {self.time_left:02d}s", id="timer")
         with Container(id="grid-container"):
             yield PuzzleGrid(self.puzzle)
@@ -119,9 +138,11 @@ class GameScreen(Screen):
     def tick(self) -> None:
         self.time_left -= 1
         self.query_one("#timer", Static).update(f"⏱ {self.time_left:02d}s")
+        if self.time_left <= 10:
+            self.query_one("#timer", Static).update(f"[bold red]⏱ {self.time_left:02d}s[/]")
         if self.time_left <= 0:
             self.timer.stop()
-            self.app.show_game_over("Time's up!")
+            self.app.lose_life("Time's up!")
 
     def update_status(self) -> None:
         atom = self.grid.get_atom_at(self.grid.cursor_x, self.grid.cursor_y)

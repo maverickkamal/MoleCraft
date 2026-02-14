@@ -92,6 +92,19 @@ class MenuScreen(Screen):
                 yield Button("3. Hard", id="hard-btn", classes="difficulty-btn")
             yield Static("[dim]Press 1, 2, 3 to select difficulty | Q to quit[/]", id="info")
 
+    def _refresh_stats(self) -> None:
+        save = self.app.save_data
+        high = save.get("high_score", 0)
+        solved = save.get("total_solved", 0)
+        fastest = save.get("fastest_solve")
+        fastest_str = f"{fastest}s" if fastest is not None else "-"
+        self.query_one("#stats", Static).update(
+            f"[bold]High Score: {high}[/]  |  Molecules Solved: {solved}  |  Fastest: {fastest_str}"
+        )
+
+    def on_screen_resume(self) -> None:
+        self._refresh_stats()
+
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "easy-btn":
             self.start_game(Difficulty.EASY)
