@@ -5,9 +5,9 @@ from textual.binding import Binding
 from textual.app import ComposeResult
 from textual.timer import Timer
 
-from widgets.puzzle_grid import PuzzleGrid
-from puzzles import Puzzle
-from screens.pause import PauseModal
+from ..widgets.puzzle_grid import PuzzleGrid
+from ..puzzles import Puzzle
+from .pause import PauseModal
 
 
 class GameScreen(Screen):

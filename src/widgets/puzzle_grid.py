@@ -6,8 +6,8 @@ from textual.reactive import reactive
 from textual.message import Message
 from rich.text import Text
 
-from models import Atom, Bond
-from puzzles import Puzzle
+from ..models import Atom, Bond
+from ..puzzles import Puzzle
 
 
 class PuzzleGrid(Static):

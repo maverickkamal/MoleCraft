@@ -11,11 +11,15 @@ Built with Python and [Textual](https://github.com/Textualize/textual).
 
 ## Install
 
+Clone the repo and install dependencies:
+
 ```
+git clone https://github.com/maverickkamal/MoleCraft.git
+cd MoleCraft
 pip install textual
 ```
 
-Or install from the project:
+Or install the package directly:
 
 ```
 pip install .
@@ -23,13 +27,17 @@ pip install .
 
 ## Run
 
-From the project root:
+```
+python run.py
+```
+
+Or as a module:
 
 ```
 python -m src
 ```
 
-Or if installed:
+Or if installed via `pip install .`:
 
 ```
 molecraft

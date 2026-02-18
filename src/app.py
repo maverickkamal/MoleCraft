@@ -2,12 +2,12 @@ import random
 
 from textual.app import App
 
-from screens.menu import MenuScreen
-from screens.game import GameScreen
-from screens.game_over import GameOverModal
-from puzzles import Difficulty, get_puzzles, Puzzle, MOLECULE_FACTS
-from widgets.puzzle_grid import PuzzleGrid
-from save_manager import load_save, write_save
+from .screens.menu import MenuScreen
+from .screens.game import GameScreen
+from .screens.game_over import GameOverModal
+from .puzzles import Difficulty, get_puzzles, Puzzle, MOLECULE_FACTS
+from .widgets.puzzle_grid import PuzzleGrid
+from .save_manager import load_save, write_save
 
 
 class MoleCraftApp(App):

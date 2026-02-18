@@ -4,7 +4,7 @@ from textual.containers import Container, Horizontal
 from textual.binding import Binding
 from textual.app import ComposeResult
 
-from puzzles import Difficulty
+from ..puzzles import Difficulty
 
 
 TITLE_ART = """
